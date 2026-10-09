@@ -17,6 +17,19 @@
   --police-texte: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
+/* ===== Thème de la version dev : rose, pour ne jamais confondre avec la prod ===== */
+:root.dev {
+  --violet: #C2185B;
+  --violet-fonce: #8E1243;
+  --violet-doux: #FCE4EF;
+  --violet-pale: #FDF0F6;
+}
+
+:root.dev .marque::after {
+  content: " · DEV";
+  color: var(--violet);
+}
+
 * {
   box-sizing: border-box;
 }

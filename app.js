@@ -1,18 +1,24 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-import { SUPABASE_URL, SUPABASE_CLE, VAPID_CLE_PUBLIQUE } from "./config.js";
+import { SUPABASE_URL, SUPABASE_CLE, VAPID_CLE_PUBLIQUE, EN_DEV } from "./config.js";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_CLE);
+
+// En dev, la page passe en rose (voir « Thème de la version dev » dans style.css)
+if (EN_DEV) document.documentElement.classList.add("dev");
 const $ = (id) => document.getElementById(id);
 
 /* =========================================================
    Stockage local (prénom + jetons secrets)
    ========================================================= */
+// La dev et la prod sont sur le même domaine (nawelgl.github.io), donc partagent
+// le même stockage local : on préfixe les clés en dev pour ne jamais les mélanger.
+const PREFIXE = EN_DEV ? "dev." : "";
 const CLES = {
-  prenom: "skate.prenom",
-  participations: "skate.participations", // { sessionId: { id, jeton } }
-  creations: "skate.creations",           // { sessionId: jeton }
-  abonnement: "skate.abonnement",         // id de l'abonnement push de ce téléphone
-  encartMasque: "skate.encartMasque",     // dernier encart que la personne a fermé
+  prenom: `${PREFIXE}skate.prenom`,
+  participations: `${PREFIXE}skate.participations`, // { sessionId: { id, jeton } }
+  creations: `${PREFIXE}skate.creations`,           // { sessionId: jeton }
+  abonnement: `${PREFIXE}skate.abonnement`,         // id de l'abonnement push de ce téléphone
+  encartMasque: `${PREFIXE}skate.encartMasque`,     // dernier encart que la personne a fermé
 };
 const stock = {
   lire(cle, defaut) {
