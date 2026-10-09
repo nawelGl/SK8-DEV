@@ -1,5 +1,6 @@
 // Service worker : tourne en arrière-plan, séparé de la page.
-const VERSION = "skate-v1";
+// Change VERSION quand tu modifies la liste des fichiers ci-dessous.
+const VERSION = "skate-v2";
 const FICHIERS = [
   "./",
   "./index.html",
@@ -57,6 +58,7 @@ self.addEventListener("push", (event) => {
       icon: "icones/icone-192.png",
       badge: "icones/badge-96.png",
       tag: data.tag, // une seule notif par session, même si reçue deux fois
+      renotify: true, // une notif qui en remplace une autre sonne et s'affiche quand même
       data: { url: self.registration.scope },
     })
   );
