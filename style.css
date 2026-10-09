@@ -1,0 +1,995 @@
+/* ===== Couleurs et typos ===== */
+:root {
+  color-scheme: light;
+  --fond: #F1EFEA;
+  --carte: #FFFFFF;
+  --encre: #18181B;
+  --gris: #57534E;
+  --trait: #D6D3CD;
+  --trait-champ: #A8A29E;
+  --pierre: #E7E5E4;
+  --violet: #0454C4;
+  --violet-fonce: #033A8C;
+  --violet-doux: #E3ECFB;
+  --violet-pale: #F0F5FD;
+  --rouge: #B42318;
+  --police-titre: 'Archivo', 'Arial Narrow', system-ui, sans-serif;
+  --police-texte: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+
+body {
+  background: var(--fond);
+  color: var(--encre);
+  font-family: var(--police-texte);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 2px solid var(--violet);
+  outline-offset: 2px;
+}
+
+.ico {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ===== Structure ===== */
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.vue {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.contenu {
+  flex: 1;
+  padding: 4px 16px calc(112px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ===== En-tête liste ===== */
+.entete {
+  padding: 24px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.entete-haut {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.marque {
+  font-family: var(--police-titre);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gris);
+}
+
+.puce {
+  min-height: 44px;
+  max-width: 62%;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--trait);
+  background: var(--carte);
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.puce span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.titre {
+  margin: 0;
+  font-family: var(--police-titre);
+  font-weight: 800;
+  font-size: 44px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.sous-titre {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--gris);
+}
+
+/* ===== Cartes de session ===== */
+.liste {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.note {
+  margin: 4px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--gris);
+}
+
+.carte {
+  background: var(--carte);
+  border: 1px solid var(--trait);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.carte-haut {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.bloc-date {
+  width: 56px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--encre);
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+  gap: 2px;
+}
+
+.bloc-date.aujourdhui {
+  background: var(--violet);
+}
+
+.bloc-date-petit {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.bloc-date-num {
+  font-family: var(--police-titre);
+  font-weight: 800;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.infos {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.spot {
+  margin: 0;
+  font-family: var(--police-titre);
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--gris);
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.meta .ico {
+  margin-top: 1px;
+}
+
+.auteur {
+  font-size: 13px;
+  color: var(--gris);
+}
+
+.lien-carte {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 6px;
+  min-height: 24px;
+  padding: 2px 0;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: var(--violet);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+
+.lien-carte .ico {
+  margin-top: 1px;
+}
+
+.lien-carte:hover {
+  color: var(--violet-fonce);
+}
+
+.ligne-adresse {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 12px;
+}
+
+.bouton-crayon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  border-radius: 10px;
+  color: var(--gris);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bouton-crayon:hover {
+  background: var(--violet-pale);
+  color: var(--violet-fonce);
+}
+
+.aide-ok .bouton-crayon {
+  margin: -12px 0;
+}
+
+.suggestion-ligne {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--pierre);
+  background: var(--carte);
+}
+
+.suggestion-ligne .suggestion {
+  flex: 1;
+  min-width: 0;
+  border-bottom: none;
+}
+
+.suggestion-ligne .bouton-crayon {
+  margin-right: 6px;
+}
+
+.actions-createur {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 20px;
+  margin: -8px 0 -12px;
+}
+
+.actions-createur .bouton-lien {
+  margin: 0;
+}
+
+.actions-createur .bouton-modifier {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--violet);
+}
+
+.reponses {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.groupe-reponses {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.titre-groupe {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gris);
+}
+
+.pastilles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pastille {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pastille.dispo {
+  background: #E3F4E6;
+  color: #1B6A31;
+}
+
+.pastille.pas-dispo {
+  background: #FDE8E8;
+  color: #A12626;
+}
+
+.pastille.moi {
+  outline: 1.5px solid currentColor;
+  outline-offset: -1.5px;
+}
+
+.compte {
+  font-size: 13px;
+  color: var(--gris);
+}
+
+.boutons-reponse {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.bouton-reponse {
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.bouton-reponse.viens {
+  border: 1.5px solid var(--encre);
+  background: var(--encre);
+  color: #FFFFFF;
+}
+
+.bouton-reponse.viens.actif {
+  border-color: var(--violet);
+  background: var(--violet-doux);
+  color: var(--violet-fonce);
+}
+
+.bouton-reponse.pas-dispo {
+  border: 1.5px solid var(--trait-champ);
+  background: var(--carte);
+  color: var(--encre);
+}
+
+.bouton-reponse.pas-dispo.actif {
+  border-color: #A12626;
+  background: #FDE8E8;
+  color: #A12626;
+}
+
+.bouton-reponse:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.bouton-lien:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.bouton-lien {
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--rouge);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.carte .bouton-lien {
+  margin: -8px 0 -12px;
+}
+
+.vide {
+  background: var(--carte);
+  border: 1.5px dashed var(--trait-champ);
+  border-radius: 16px;
+  padding: 28px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vide-titre {
+  margin: 0;
+  font-family: var(--police-titre);
+  font-weight: 700;
+  font-size: 19px;
+}
+
+/* ===== Barre du bas ===== */
+.barre-bas {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  background: var(--fond);
+  border-top: 1px solid var(--trait);
+}
+
+.bouton-principal {
+  display: flex;
+  width: 100%;
+  max-width: 448px;
+  margin: 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 56px;
+  border: none;
+  border-radius: 14px;
+  background: var(--violet);
+  color: #FFFFFF;
+  font-family: var(--police-titre);
+  font-weight: 700;
+  font-size: 17px;
+}
+
+.bouton-principal:hover {
+  background: var(--violet-fonce);
+}
+
+.bouton-principal:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+/* ===== Formulaire ===== */
+.entete-form {
+  padding: 16px 12px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bouton-icone {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: none;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.titre-form {
+  margin: 0;
+  font-family: var(--police-titre);
+  font-weight: 800;
+  font-size: 26px;
+  letter-spacing: -0.01em;
+}
+
+.formulaire {
+  gap: 20px;
+  padding-top: 8px;
+}
+
+.grille-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.champ label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.facultatif {
+  font-weight: 500;
+  color: var(--gris);
+}
+
+.champ textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 14px;
+  resize: none;
+  border-radius: 12px;
+  border: 1.5px solid var(--trait-champ);
+  background: var(--carte);
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.champ textarea:focus {
+  outline: 2px solid var(--violet);
+  outline-offset: 1px;
+  border-color: var(--violet);
+}
+
+.compteur {
+  align-self: flex-end;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sélecteur de type : Spot / Balade */
+.types-session {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.types-session legend {
+  padding: 0;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.segment {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: #E2DFD8;
+}
+
+.segment-option {
+  position: relative;
+  cursor: pointer;
+}
+
+.segment-option input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.segment-bouton {
+  min-height: 44px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gris);
+}
+
+.segment-option input:checked+.segment-bouton {
+  background: var(--carte);
+  color: var(--violet-fonce);
+  box-shadow: 0 1px 2px rgba(24, 24, 27, 0.1);
+}
+
+.segment-option input:focus-visible+.segment-bouton {
+  outline: 2px solid var(--violet);
+  outline-offset: 2px;
+}
+
+/* Carte d'une session annulée : réduite et grisée */
+.carte-annulee {
+  background: #F7F6F3;
+  border-style: dashed;
+}
+
+.carte-annulee .bloc-date {
+  background: #D6D3CD;
+  color: #57534E;
+}
+
+.carte-annulee .spot {
+  color: #6B6660;
+}
+
+.carte-annulee .meta,
+.carte-annulee .auteur {
+  color: #6B6660;
+}
+
+.badge-annulee {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #57534E;
+  background: #E7E5E4;
+}
+
+/* Cartes : badge balade et description */
+.badge-balade {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--violet-fonce);
+  background: var(--violet-doux);
+}
+
+.description-session {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #6B6660;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.description-session.ouverte {
+  display: block;
+  -webkit-line-clamp: unset;
+}
+
+.voir-plus {
+  align-self: flex-start;
+  margin-top: -10px;
+  padding: 4px 0;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--violet);
+}
+
+.champ input {
+  height: 48px;
+  width: 100%;
+  min-width: 0;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--trait-champ);
+  background: var(--carte);
+  font-size: 16px;
+  /* 16px évite le zoom automatique sur iPhone */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.champ input:focus {
+  outline: 2px solid var(--violet);
+  outline-offset: 1px;
+  border-color: var(--violet);
+}
+
+.champ-icone {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.champ-icone svg {
+  position: absolute;
+  left: 14px;
+  pointer-events: none;
+  color: var(--gris);
+}
+
+.champ-icone input {
+  height: 52px;
+  padding-left: 44px;
+}
+
+.suggestions {
+  background: var(--carte);
+  border: 1px solid var(--trait);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.suggestion {
+  min-height: 56px;
+  padding: 10px 14px;
+  border: none;
+  border-bottom: 1px solid var(--pierre);
+  background: var(--carte);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+.suggestion:hover {
+  background: var(--violet-pale);
+}
+
+.suggestion-nom {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.suggestion-adresse {
+  font-size: 13px;
+  color: var(--gris);
+}
+
+.suggestion-vide {
+  margin: 0;
+  padding: 14px;
+  font-size: 14px;
+  color: var(--gris);
+  border-bottom: 1px solid var(--pierre);
+}
+
+.suggestion-ajout {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  min-height: 52px;
+  border-bottom: none;
+  background: var(--violet-pale);
+  color: var(--violet-fonce);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.aide {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--gris);
+}
+
+.aide-ok {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aide-ok .ico {
+  color: var(--violet);
+}
+
+.nouveau-spot {
+  margin-top: 6px;
+  background: var(--carte);
+  border: 1.5px solid var(--violet);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.nouveau-spot h2 {
+  margin: 0 0 4px;
+  font-family: var(--police-titre);
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.bouton-secondaire,
+.bouton-sombre {
+  min-height: 48px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.bouton-secondaire {
+  border: 1px solid var(--trait);
+  background: var(--carte);
+}
+
+.bouton-sombre {
+  border: none;
+  background: var(--encre);
+  color: #FFFFFF;
+}
+
+.bouton-sombre:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+
+.erreur {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #FEF3F2;
+  color: var(--rouge);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ===== Encart notifs ===== */
+.encart {
+  background: var(--violet-pale);
+  border: 1.5px solid var(--violet);
+  border-radius: 16px;
+  padding: 14px 6px 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.encart-texte {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.encart-titre {
+  margin: 0;
+  font-family: var(--police-titre);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--violet-fonce);
+}
+
+.bouton-encart {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 0 16px;
+}
+
+.encart .bouton-icone {
+  color: var(--violet-fonce);
+  margin-top: -8px;
+}
+
+.bouton-discret {
+  min-height: 44px;
+  padding: 0 4px;
+  border: none;
+  background: none;
+  color: var(--gris);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ===== Notification et fenêtre prénom ===== */
+.toast {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  z-index: 20;
+  bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+  max-width: 448px;
+  margin: 0 auto;
+  background: var(--encre);
+  color: #FFFFFF;
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.dialogue {
+  border: none;
+  border-radius: 20px;
+  padding: 20px;
+  width: min(92vw, 400px);
+  background: var(--fond);
+  color: var(--encre);
+}
+
+.dialogue::backdrop {
+  background: rgba(24, 24, 27, 0.5);
+}
+
+.dialogue form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dialogue h2 {
+  margin: 0;
+  font-family: var(--police-titre);
+  font-weight: 800;
+  font-size: 22px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+  .bouton-reponse,
+  .suggestion,
+  .bouton-principal {
+    transition: background-color 0.15s ease;
+  }
+}

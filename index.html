@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#F1EFEA">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Skate">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Sessions skate</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icones/icone-192.png">
+  <link rel="apple-touch-icon" href="icones/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- ===== Vue liste ===== -->
+    <section id="vue-liste" class="vue">
+      <header class="entete">
+        <div class="entete-haut">
+          <span class="marque">Le crew skate</span>
+          <button type="button" id="btn-prenom" class="puce">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
+            </svg>
+            <span id="prenom-affiche">Ton prénom</span>
+          </button>
+        </div>
+        <h1 class="titre">Sessions</h1>
+        <p class="sous-titre">Propose un créneau, rejoins ceux des autres.</p>
+      </header>
+
+      <main class="contenu">
+        <aside id="encart-notifs" class="encart" aria-labelledby="encart-titre" hidden>
+          <div class="encart-texte">
+            <p id="encart-titre" class="encart-titre"></p>
+            <p id="encart-detail" class="aide"></p>
+            <button type="button" id="btn-notifs" class="bouton-sombre bouton-encart" hidden>Activer les notifs</button>
+          </div>
+          <button type="button" id="btn-encart-fermer" class="bouton-icone" aria-label="Masquer ce message">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        </aside>
+
+        <p id="etat-chargement" class="note">Chargement des sessions…</p>
+        <div id="liste-sessions" class="liste"></div>
+        <div id="liste-vide" class="vide" hidden>
+          <p class="vide-titre">Aucune session prévue</p>
+          <p class="aide">Lance la prochaine, les autres pourront te rejoindre.</p>
+        </div>
+        <p class="note">Les sessions passées disparaissent automatiquement.</p>
+        <p id="ligne-notifs" class="note" hidden>
+          Notifs activées sur ce téléphone.
+          <button type="button" id="btn-desactiver" class="bouton-discret">Désactiver</button>
+        </p>
+      </main>
+
+      <div class="barre-bas">
+        <button type="button" id="btn-proposer" class="bouton-principal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          Proposer une session
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== Vue formulaire ===== -->
+    <section id="vue-formulaire" class="vue" hidden>
+      <header class="entete-form">
+        <button type="button" id="btn-retour" class="bouton-icone" aria-label="Retour aux sessions">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M15 5l-7 7 7 7" />
+          </svg>
+        </button>
+        <h1 id="titre-form" class="titre-form">Nouvelle session</h1>
+      </header>
+
+      <form id="form-session" class="contenu formulaire" novalidate>
+        <fieldset class="types-session">
+          <legend>Type</legend>
+          <div class="segment">
+            <label class="segment-option">
+              <input type="radio" name="type-session" id="f-type-spot" value="spot" checked>
+              <span class="segment-bouton">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" />
+                  <circle cx="12" cy="9.5" r="2.5" />
+                </svg>
+                Spot
+              </span>
+            </label>
+            <label class="segment-option">
+              <input type="radio" name="type-session" id="f-balade" value="balade">
+              <span class="segment-bouton">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="6" cy="19" r="2" />
+                  <circle cx="18" cy="5" r="2" />
+                  <path d="M12 19h4.5a3.5 3.5 0 0 0 0-7h-8a3.5 3.5 0 0 1 0-7H12" />
+                </svg>
+                Balade
+              </span>
+            </label>
+          </div>
+          <p id="aide-type" class="aide">Un lieu, une heure, une session.</p>
+        </fieldset>
+
+        <div class="champ">
+          <label for="f-date">Date</label>
+          <input id="f-date" type="date" required>
+        </div>
+        <div class="grille-2">
+          <div class="champ">
+            <label for="f-heure">Début</label>
+            <input id="f-heure" type="time" required>
+          </div>
+          <div class="champ">
+            <label for="f-heure-fin">Fin <span class="facultatif">facultatif</span></label>
+            <input id="f-heure-fin" type="time">
+          </div>
+        </div>
+
+
+        <div class="champ champ-spot">
+          <label for="f-spot" id="label-spot">Spot</label>
+          <div class="champ-icone">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" />
+              <circle cx="12" cy="9.5" r="2.5" />
+            </svg>
+            <input id="f-spot" type="text" autocomplete="off" placeholder="Commence à taper un spot…" role="combobox"
+              aria-autocomplete="list" aria-expanded="false" aria-controls="suggestions">
+          </div>
+          <div id="suggestions" class="suggestions" role="listbox" aria-label="Spots" hidden></div>
+          <p id="spot-choisi" class="aide aide-ok" hidden></p>
+
+          <section id="nouveau-spot" class="nouveau-spot" aria-labelledby="ns-titre" hidden>
+            <div>
+              <h2 id="ns-titre">Nouveau spot</h2>
+              <p class="aide" id="ns-aide">Il sera proposé à tout le crew pour les prochaines sessions.</p>
+            </div>
+            <div class="champ">
+              <label for="ns-nom" id="ns-label-nom">Nom du spot</label>
+              <input id="ns-nom" type="text" maxlength="70" placeholder="Ex. Skatepark couvert">
+            </div>
+            <div class="champ">
+              <label for="ns-adresse">Adresse</label>
+              <input id="ns-adresse" type="text" maxlength="160" placeholder="Rue, ville">
+            </div>
+            <div class="grille-2">
+              <button type="button" id="ns-annuler" class="bouton-secondaire">Annuler</button>
+              <button type="button" id="ns-ajouter" class="bouton-sombre">Ajouter</button>
+            </div>
+          </section>
+        </div>
+
+        <div id="champ-arrivee" class="champ" hidden>
+          <label for="f-arrivee">Arrivée <span class="facultatif">facultatif</span></label>
+          <input id="f-arrivee" type="text" maxlength="70" placeholder="Paris 13, les quais…">
+        </div>
+
+        <div class="champ">
+          <label for="f-description">Description <span class="facultatif">facultatif</span></label>
+          <textarea id="f-description" rows="3" maxlength="280" placeholder="Un truc à spécifier sur la session ? Sinon laissez vide !"
+            aria-describedby="compteur-description"></textarea>
+          <p id="compteur-description" class="aide compteur">0 / 280</p>
+        </div>
+
+        <div id="champ-pseudo" class="champ">
+          <label for="f-pseudo">Proposée par</label>
+          <input id="f-pseudo" type="text" maxlength="30" autocomplete="given-name" required>
+          <p class="aide">Retenu sur ce téléphone, pas besoin de compte.</p>
+        </div>
+
+        <p id="erreur-form" class="erreur" role="alert" hidden></p>
+      </form>
+
+      <div class="barre-bas">
+        <button type="submit" form="form-session" id="btn-publier" class="bouton-principal">Publier la session</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== Fenêtre prénom ===== -->
+  <dialog id="dialog-prenom" class="dialogue" aria-labelledby="d-titre">
+    <form id="form-prenom" novalidate>
+      <h2 id="d-titre">C'est quoi ton prénom ?</h2>
+      <p class="aide">Il s'affiche quand tu proposes ou rejoins une session. Il reste sur ce téléphone.</p>
+      <div class="champ">
+        <label for="d-prenom">Prénom</label>
+        <input id="d-prenom" type="text" maxlength="30" autocomplete="given-name" required>
+      </div>
+      <div class="grille-2">
+        <button type="button" id="d-annuler" class="bouton-secondaire">Annuler</button>
+        <button type="submit" class="bouton-sombre">Valider</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ===== Fenêtre correction d'adresse ===== -->
+  <dialog id="dialog-adresse" class="dialogue" aria-labelledby="a-titre">
+    <form id="form-adresse" novalidate>
+      <h2 id="a-titre">Corriger l'adresse</h2>
+      <p class="aide"><strong id="a-spot"></strong>. La nouvelle adresse sera visible par tout le crew.</p>
+      <div class="champ">
+        <label for="a-adresse">Adresse</label>
+        <input id="a-adresse" type="text" maxlength="160" placeholder="Rue, ville" required>
+      </div>
+      <p id="a-erreur" class="erreur" role="alert" hidden></p>
+      <div class="grille-2">
+        <button type="button" id="a-annuler" class="bouton-secondaire">Annuler</button>
+        <button type="submit" id="a-valider" class="bouton-sombre">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+
+</html>
