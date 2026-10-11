@@ -89,6 +89,10 @@ const ICONES = {
   check: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
   plus: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
   route: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M12 19h4.5a3.5 3.5 0 0 0 0-7h-8a3.5 3.5 0 0 1 0-7H12"/></svg>',
+  soleil: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  nuage: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18h10a4 4 0 0 0 .5-7.97A6 6 0 0 0 6.1 10.1 4 4 0 0 0 7 18z"/></svg>',
+  pluie: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15h10a4 4 0 0 0 .5-7.97A6 6 0 0 0 6.1 7.1 4 4 0 0 0 7 15z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/></svg>',
+  goutte: '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3s-6 7-6 11a6 6 0 0 0 12 0c0-4-6-11-6-11z"/></svg>',
   croix: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   crayon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>',
   repere: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
@@ -185,7 +189,7 @@ async function assurerPrenom() {
 async function chargerSessions() {
   const { data, error } = await supabase
     .from("sessions")
-    .select("id, date, heure, heure_fin, propose_par, balade, arrivee, description, annulee_le, spot:spots(id, nom, adresse, type), participants(id, prenom, statut, heure_arrivee, created_at)")
+    .select("id, date, heure, heure_fin, propose_par, balade, arrivee, description, annulee_le, spot:spots(id, nom, adresse, type, latitude, longitude), participants(id, prenom, statut, heure_arrivee, created_at)")
     .gte("date", aujourdhui())
     .order("date")
     .order("heure");
@@ -199,6 +203,7 @@ async function chargerSessions() {
   sessions = data;
   nettoyerJetons();
   afficherSessions();
+  majMeteo(); // en arrière-plan : la météo s'ajoute aux cartes dès qu'elle arrive
 }
 
 // Oublie les jetons des sessions passées ou des participations supprimées
@@ -322,6 +327,7 @@ function carteSession(s) {
         ),
         el("span", { class: "auteur" }, `Proposée par ${s.propose_par}`),
       ),
+      blocMeteo(s),
     ),
     s.description && el("p", { class: "description-session" }, s.description),
     s.description && el("button", {
@@ -486,6 +492,135 @@ async function supprimerSession(s) {
   sauverJetons();
   toast("Session annulée. Les inscrits sont prévenus.");
   await chargerSessions();
+}
+
+/* =========================================================
+   Météo (Open-Meteo pour les prévisions, Géoplateforme de l'IGN pour les adresses)
+   ========================================================= */
+const CLE_METEO = `${PREFIXE}skate.meteo`;
+const DUREE_CACHE_METEO = 60 * 60 * 1000; // les prévisions ne changent pas plus d'une fois par heure
+let meteoParLieu = {};                    // "lat,lon" → prévisions heure par heure
+const lieuxDejaGeocodes = new Set();      // pour ne tenter chaque lieu qu'une fois par visite
+
+const cleLieu = (spot) => `${spot.latitude.toFixed(3)},${spot.longitude.toFixed(3)}`;
+
+// Codes météo WMO renvoyés par Open-Meteo
+const CODES_PLUIE = new Set([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 99]);
+
+async function majMeteo() {
+  await geocoderLesLieuxManquants();
+
+  // Lieux des sessions actives des 16 prochains jours (limite des prévisions)
+  const limite = new Date();
+  limite.setDate(limite.getDate() + 15);
+  const lieux = new Map();
+  for (const s of sessions) {
+    if (s.annulee_le || !s.spot?.latitude || dateLocale(s.date) > limite) continue;
+    lieux.set(cleLieu(s.spot), s.spot);
+  }
+  if (lieux.size === 0) return;
+
+  const cles = [...lieux.keys()].sort();
+  const cache = stock.lire(CLE_METEO, null);
+  if (cache && cache.cles === cles.join("|") && Date.now() - cache.date < DUREE_CACHE_METEO) {
+    meteoParLieu = cache.meteo;
+    return afficherSessions();
+  }
+
+  // Une seule requête pour tous les lieux
+  const latitudes = cles.map((c) => c.split(",")[0]).join(",");
+  const longitudes = cles.map((c) => c.split(",")[1]).join(",");
+  try {
+    const reponse = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${latitudes}&longitude=${longitudes}` +
+      "&hourly=temperature_2m,precipitation_probability,weather_code&timezone=Europe%2FParis&forecast_days=16");
+    if (!reponse.ok) throw new Error(`Open-Meteo : ${reponse.status}`);
+    const json = await reponse.json();
+    const resultats = Array.isArray(json) ? json : [json]; // un seul lieu = un objet, plusieurs = une liste
+
+    meteoParLieu = {};
+    cles.forEach((cle, i) => {
+      const h = resultats[i]?.hourly;
+      if (h) meteoParLieu[cle] = {
+        heures: h.time, temperatures: h.temperature_2m,
+        pluie: h.precipitation_probability, codes: h.weather_code,
+      };
+    });
+    stock.ecrire(CLE_METEO, { cles: cles.join("|"), date: Date.now(), meteo: meteoParLieu });
+    afficherSessions();
+  } catch (erreur) {
+    console.error(erreur); // pas de météo, l'appli fonctionne quand même
+  }
+}
+
+// Calcule les coordonnées des lieux qui n'en ont pas encore, à partir de leur adresse
+async function geocoderLesLieuxManquants() {
+  const aGeocoder = new Map();
+  for (const s of sessions) {
+    if (s.spot && s.spot.latitude == null && !lieuxDejaGeocodes.has(s.spot.id)) aGeocoder.set(s.spot.id, s.spot);
+  }
+  for (const spot of aGeocoder.values()) {
+    lieuxDejaGeocodes.add(spot.id);
+    try {
+      const recherche = encodeURIComponent(spot.adresse || spot.nom);
+      const reponse = await fetch(`https://data.geopf.fr/geocodage/search?q=${recherche}&limit=1`);
+      if (!reponse.ok) continue;
+      const coordonnees = (await reponse.json()).features?.[0]?.geometry?.coordinates; // [longitude, latitude]
+      if (!coordonnees) continue;
+      const [longitude, latitude] = coordonnees;
+      const { error } = await supabase.rpc("enregistrer_coordonnees", {
+        p_spot: spot.id, p_latitude: latitude, p_longitude: longitude,
+      });
+      if (error) continue;
+      // On met à jour tout de suite pour afficher la météo sans attendre le prochain chargement
+      for (const s of sessions) if (s.spot?.id === spot.id) Object.assign(s.spot, { latitude, longitude });
+    } catch (erreur) {
+      console.error(erreur);
+    }
+  }
+}
+
+// Météo d'une session : icône, température au début, risque de pluie sur toute la durée
+function meteoSession(s) {
+  if (s.annulee_le || s.spot?.latitude == null) return null;
+  const prevision = meteoParLieu[cleLieu(s.spot)];
+  if (!prevision) return null;
+
+  const heureDebut = Number(s.heure.slice(0, 2));
+  const heureFin = s.heure_fin
+    ? Math.ceil(Number(s.heure_fin.slice(0, 2)) + Number(s.heure_fin.slice(3, 5)) / 60)
+    : heureDebut + 2; // sans heure de fin, on regarde les deux heures qui suivent
+  const indice = (h) => prevision.heures.indexOf(`${s.date}T${String(h).padStart(2, "0")}:00`);
+
+  const debut = indice(heureDebut);
+  if (debut < 0) return null;
+
+  let pluieMax = 0;
+  let codePluie = false;
+  for (let h = heureDebut; h < Math.max(heureFin, heureDebut + 1); h++) {
+    const i = indice(h);
+    if (i < 0) continue;
+    pluieMax = Math.max(pluieMax, prevision.pluie[i] ?? 0);
+    if (CODES_PLUIE.has(prevision.codes[i])) codePluie = true;
+  }
+
+  const temperature = Math.round(prevision.temperatures[debut]);
+  const pluvieux = pluieMax >= 50 || (codePluie && pluieMax >= 30);
+  if (pluvieux) return { type: "pluie", temperature, pluie: pluieMax };
+  return { type: prevision.codes[debut] <= 1 ? "soleil" : "nuage", temperature };
+}
+
+function blocMeteo(s) {
+  const m = meteoSession(s);
+  if (!m) return null;
+  const libelles = { soleil: "Ensoleillé", nuage: "Nuageux", pluie: "Pluie probable" };
+  const description = `${libelles[m.type]}, ${m.temperature} degrés`
+    + (m.pluie ? `, ${m.pluie} % de risque de pluie` : "");
+  return el("div", { class: `meteo meteo-${m.type}`, role: "img", "aria-label": description },
+    icone(m.type),
+    el("span", { class: "meteo-temperature", "aria-hidden": "true" }, `${m.temperature}°`),
+    m.pluie && el("span", { class: "meteo-proba", "aria-hidden": "true" }, icone("goutte"), `${m.pluie} %`),
+  );
 }
 
 /* =========================================================
